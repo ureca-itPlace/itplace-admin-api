@@ -1,1 +1,1 @@
-# itplace-admin-api
+# 잇플레이스 관리자 API 서버입니다.
