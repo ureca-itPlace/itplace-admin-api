@@ -1,15 +1,21 @@
 spring:
-  application:
-    name: itplace-admin-api
+  profiles:
+    active: local
+    group:
+      local: local, common, secret
+---
 
+spring:
   config:
-    import: optional:file:.env[.properties]
+    activate:
+      on-profile: local
 
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${MYSQL_URL}
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
+---
+
+spring:
+  config:
+    activate:
+      on-profile: common
 
   jpa:
     hibernate:
