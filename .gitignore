@@ -43,6 +43,10 @@ out/
 .env.production.local
 .env.local
 
+application-secret.yml
+settings.json
+GEMINI.md
+
 ### macOS ###
 # General
 .DS_Store
