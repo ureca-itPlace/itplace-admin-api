@@ -1,5 +1,11 @@
 package com.itplace.adminapi.security.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itplace.adminapi.common.ApiResponse;
+import com.itplace.adminapi.security.SecurityCode;
+import com.itplace.adminapi.security.auth.filter.LoginFilter;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,14 +14,23 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final ObjectMapper objectMapper; // ObjectMapper 주입
+    private final AuthenticationConfiguration authenticationConfiguration; // AuthenticationManager를 얻기 위해 주입
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -24,12 +39,22 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable);
+//                .sessionManagement(session ->
+//                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+//                ); // 세션 필요 시 생성
 
         // 경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/**").permitAll()
-                        .anyRequest().authenticated());
+                                .requestMatchers("/api/v1/login").permitAll()
+                                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                                .anyRequest().authenticated());
+
+//        http
+//                .securityContext(context -> context.requireExplicitSave(false));
+
+        http
+                .addFilterAt(loginFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -40,7 +65,53 @@ public class SecurityConfig {
     }
 
     @Bean
+    public LoginFilter loginFilter() throws Exception {
+        LoginFilter filter = new LoginFilter(objectMapper);
+        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
+        filter.setAuthenticationSuccessHandler(loginSuccessHandler());
+        filter.setAuthenticationFailureHandler(loginFailureHandler());
+        return filter;
+    }
+
+    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
+
+    // 로그인 성공 핸들러: 성공 시 200 OK와 메시지 응답
+    @Bean
+    public AuthenticationSuccessHandler loginSuccessHandler() {
+        return (request, response, authentication) -> {
+            // 세션이 없으면 생성
+            HttpSession session = request.getSession(true);
+            // 세션 ID 갱신 (Servlet 3.1+)
+            request.changeSessionId();
+
+            // SecurityContext 저장
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(authentication);
+            session.setAttribute(
+                    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                    context
+            );
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            ApiResponse<Void> apiResponse = ApiResponse.ok(SecurityCode.LOGIN_SUCCESS);
+            objectMapper.writeValue(response.getOutputStream(), apiResponse);
+        };
+    }
+
+    // 로그인 실패 핸들러: 실패 시 401 Unauthorized와 메시지 응답
+    @Bean
+    public AuthenticationFailureHandler loginFailureHandler() {
+        return (request, response, exception) -> {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            ApiResponse<Void> apiResponse = ApiResponse.ok(SecurityCode.LOGIN_FAIL);
+            objectMapper.writeValue(response.getOutputStream(), apiResponse);
+        };
+    }
+
 }
