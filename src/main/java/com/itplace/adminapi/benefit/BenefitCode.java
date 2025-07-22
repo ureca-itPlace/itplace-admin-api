@@ -13,7 +13,8 @@ public enum BenefitCode implements BaseCode {
     BENEFIT_NOT_FOUND("BENEFIT_NOT_FOUND", HttpStatus.NOT_FOUND, "존재하지 않는 혜택입니다."),
     BENEFIT_TYPE_NOT_FOUND("BENEFIT_TYPE_NOT_FOUND", HttpStatus.BAD_REQUEST, "존재하지 않는 benefit type입니다."),
     MAIN_CATEGORY_NOT_FOUND("MAIN_CATEGORY_NOT_FOUND", HttpStatus.BAD_REQUEST, "존재하지 않는 main category입니다."),
-    USAGE_TYPE_NOT_FOUND("USAGE_TYPE_NOT_FOUND", HttpStatus.BAD_REQUEST, "존재하지 않는 usage type입니다.");
+    USAGE_TYPE_NOT_FOUND("USAGE_TYPE_NOT_FOUND", HttpStatus.BAD_REQUEST, "존재하지 않는 usage type입니다."),
+    BENEFIT_FAVORITE_SUCCESS("BENEFIT_FAVORITE_SUCCESS", HttpStatus.OK,"즐겨찾기 통계가 성공적으로 조회되었습니다.");
 
     private final String code;
     private final HttpStatus status;
