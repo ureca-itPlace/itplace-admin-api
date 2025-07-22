@@ -63,4 +63,5 @@ public interface MembershipHistoryRepository extends JpaRepository<MembershipHis
             """, nativeQuery = true)
     List<UsageRankProjection> findTop5PartnerId(@Param("days") int days);
 
+    List<MembershipHistory> findByMembership_MembershipIdOrderByUsedAtDesc(String membershipId);
 }

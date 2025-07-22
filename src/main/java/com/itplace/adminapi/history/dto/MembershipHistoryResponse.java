@@ -1,18 +1,22 @@
 package com.itplace.adminapi.history.dto;
 
-import java.time.LocalDateTime;
+import com.itplace.adminapi.benefit.entity.enums.Grade;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class MembershipHistoryResponse {
-    private String image;
-    private String benefitName;
-    private Long discountAmount;
-    private LocalDateTime usedAt;
+    private Long userId;
+    private String userName;
+    private String membershipId;
+    private Grade membershipGrade;
+    private List<MembershipUsage> membershipUsage;
 }
