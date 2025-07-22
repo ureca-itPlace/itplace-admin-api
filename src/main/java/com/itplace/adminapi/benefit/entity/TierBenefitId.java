@@ -1,33 +1,19 @@
 package com.itplace.adminapi.benefit.entity;
 
 import com.itplace.adminapi.benefit.entity.enums.Grade;
-import jakarta.persistence.Embeddable;
 import java.io.Serializable;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Embeddable
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class TierBenefitId implements Serializable {
     private Grade grade;
     private Long benefit;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TierBenefitId)) return false;
-        TierBenefitId that = (TierBenefitId) o;
-        return grade == that.grade && Objects.equals(benefit, that.benefit);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(grade, benefit);
-    }
 }

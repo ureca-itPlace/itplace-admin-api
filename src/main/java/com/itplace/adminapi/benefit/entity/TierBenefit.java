@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "tierbenefit")
+@Table(name = "tierBenefit")
 @IdClass(TierBenefitId.class)
 public class TierBenefit {
     @Id
