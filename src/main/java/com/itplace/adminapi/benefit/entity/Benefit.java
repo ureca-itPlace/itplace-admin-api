@@ -60,7 +60,6 @@ public class Benefit extends BaseTimeEntity {
 
     private String benefitLimit;
 
-    @Column(name = "usage_type")
     @Convert(converter = UsageTypeConverter.class)
     private UsageType usageType;
 
