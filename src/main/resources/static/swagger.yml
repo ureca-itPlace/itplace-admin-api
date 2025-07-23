@@ -1,0 +1,1525 @@
+openapi: 3.0.4
+info:
+  title: itPlace Admin API Document
+  description: |-
+    지도 기반 내 주변 LG유플러스 멤버십 혜택 정보 조회 서비스 'itPlace'의 관리자 페이지 API 명세서입니다.
+    
+    모든 API 응답은 표준 응답 포맷(ApiResponse)을 따릅니다.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8081/api/v1
+    description: 개발 서버
+tags:
+  - name: Dashboard
+    description: 대시보드 통계 정보 조회 관련 API
+  - name: User
+    description: 사용자 정보 조회 및 관리 관련 API
+  - name: Benefit
+    description: 제휴처 및 혜택 관리 관련 API
+
+paths:
+  # =====================================================
+  # 대시보드 관련 API
+  # =====================================================
+  /partners/search-ranking:
+    get:
+      tags:
+        - Dashboard
+      summary: 제휴처 검색 순위 조회
+      description: 제휴처별 검색 순위를 조회합니다.
+      operationId: getPartnersSearchRanking
+      parameters:
+        - name: recentperiod
+          in: query
+          description: 최근 조회 기간
+          required: false
+          schema:
+            type: integer
+            default: 2
+        - name: prevperiod
+          in: query
+          description: 이전 조회 기간
+          required: false
+          schema:
+            type: integer
+            default: 3
+        - name: limit
+          in: query
+          description: 조회할 제휴처 개수
+          required: false
+          schema:
+            type: integer
+            default: 5
+      responses:
+        '200':
+          description: 제휴처 검색 순위 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                플랫폼 검색 순위 조회 성공:
+                  value:
+                    code: "PARTNERS_SEARCH_RANKING_SUCCESS"
+                    status: "OK"
+                    message: "제휴처 검색 순위가 성공적으로 조회되었습니다."
+                    data:
+                        - partnerName: "네이버플러스 멤버십"
+                          searchCount: 3420
+                          rank: 1
+                          previousRank: 2
+                          rankChange: 1
+                          changeDerection: "UP"
+                        - partnerName: "CGV"
+                          searchCount: 2890
+                          rank: 2
+                          previousRank: 1
+                          rankChange: -1
+                          changeDerection: "DOWN"
+                        - partnerName: "GS25"
+                          searchCount: 2560
+                          rank: 3
+                          previousRank: 0
+                          rankChange: 0
+                          changeDerection: "SAME"
+                        - partnerName: "배스킨라빈스"
+                          searchCount: 2420
+                          rank: 4
+                          previousRank: 5
+                          rankChange: 1
+                          changeDerection: "UP"
+                        - partnerName: "메가박스"
+                          searchCount: 1890
+                          rank: 5
+                          previousRank: 4
+                          rankChange: -1
+                          changeDerection: "DOWN"
+                        - partnerName: "파리바게뜨"
+                          searchCount: 1560
+                          rank: 6
+                          previousRank: 99999
+                          rankChange: 0
+                          changeDerection: "NEW"
+                    timestamp: "2025-07-04T11:27:06.789Z"
+
+  /benefits/most-clicked:
+    get:
+      tags:
+        - Dashboard
+      summary: 자주 클릭한 제휴처 조회
+      description: 사용자 클릭 수 기준 상위 5개의 제휴처를 조회합니다.(vip콕+기본혜택)
+      operationId: getMostClickedPartners
+      parameters:
+        - name: limit
+          in: query
+          description: 조회할 제휴처 개수
+          required: false
+          schema:
+            type: integer
+            default: 5
+      responses:
+        '200':
+          description: 자주 클릭한 제휴처 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                자주 클릭한 제휴처 조회 성공:
+                  value:
+                    code: "BENEFITS_MOST_CLICKED_SUCCESS"
+                    status: "OK"
+                    message: "자주 클릭한 제휴처가 성공적으로 조회되었습니다."
+                    data:
+                        - partnerName: "네이버플러스 멤버십"
+                          clickCount: 12450
+                          rank: 1
+                        - partnerName: "CGV"
+                          clickCount: 9830
+                          rank: 2
+                        - partnerName: "GS25"
+                          clickCount: 8870
+                          rank: 3
+                        - partnerName: "롯데시네마"
+                          clickCount: 6370
+                          rank: 4
+                        - partnerName: "배스킨라빈스"
+                          clickCount: 5870
+                          rank: 5
+                    timestamp: "2025-07-04T11:27:06.789Z"
+
+  /benefits/favorite:
+    get:
+      tags:
+        - Dashboard
+      summary: 전체 즐겨찾기 통계
+      description: 즐겨찾기를 많이 한 혜택들을 조회합니다.
+      operationId: getFavoritesStatistics
+      parameters:
+        - name: limit
+          in: query
+          description: 조회할 혜택 개수
+          required: false
+          schema:
+            type: integer
+            default: 4
+      responses:
+        '200':
+          description: 즐겨찾기 통계 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                등급별 혜택 이용률 조회 성공:
+                  value:
+                    code: "BENEFITS_FAVORITES_SUCCESS"
+                    status: "OK"
+                    message: "즐겨찾기 통계가 성공적으로 조회되었습니다."
+                    data:
+                      - benefitId: 1
+                        partnerName: "CGV"
+                        benefitName: "2천원 할인"
+                        favoriteCount: 156
+                        rank: 1
+                      - benefitId: 2
+                        partnerName: "GS25"
+                        benefitName: "1천원 당 100원 할인"
+                        favoriteCount: 142
+                        rank: 2
+                      - benefitId: 3
+                        partnerName: "배스킨라빈스"
+                        benefitName: "패밀리 사이즈(5가지 맛) 4천원 할인"
+                        favoriteCount: 128
+                        rank: 3
+                      - benefitId: 4
+                        partnerName: "CGV"
+                        benefitName: "영화 1+1"
+                        favoriteCount: 95
+                        rank: 4
+                    timestamp: "2025-07-04T11:27:06.789Z"
+
+  /partners/usage:
+    get:
+      tags:
+        - Dashboard
+      summary: 제휴처별 이용 통계 조회
+      description: 전체 제휴처, 등급별 이용 통계를 상위 5개 조회합니다.(vip콕+기본혜택)
+      operationId: getPartnerUsage
+      parameters:
+        - name: period
+          in: query
+          description: 조회 기간(일)
+          required: false
+          schema:
+            type: integer
+            default: 365
+      responses:
+        '200':
+          description: 제휴처별 이용 통계 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                제휴처별 이용 통계 조회 성공:
+                  value:
+                    code: "PARTNER_USAGE_SUCCESS"
+                    status: "OK"
+                    message: "제휴처별 이용 통계가 성공적으로 조회되었습니다."
+                    data:
+                      - partnerId: 7
+                        partnerName: "네이버플러스"
+                        vvipUsageCount: 220
+                        vipUsageCount: 520
+                        basicUsageCount: 320
+                        totalUsageCount: 1060
+                      - partnerId: 108
+                        partnerName: "CGV"
+                        vvipUsageCount: 116
+                        vipUsageCount: 329
+                        basicUsageCount: 132
+                        totalUsageCount: 577
+                      - partnerId: 112
+                        partnerName: "GS25"
+                        vvipUsageCount: 133
+                        vipUsageCount: 165
+                        basicUsageCount: 148
+                        totalUsageCount: 446
+                      - partnerId: 30
+                        partnerName: "배스킨라빈스"
+                        vvipUsageCount: 165
+                        vipUsageCount: 133
+                        basicUsageCount: 123
+                        totalUsageCount: 421
+                      - partnerId: 21
+                        partnerName: "롯데시네마"
+                        vvipUsageCount: 141
+                        vipUsageCount: 123
+                        basicUsageCount: 128
+                        totalUsageCount: 392
+                    timestamp: "2025-07-04T11:27:06.789Z"
+
+  # =====================================================
+  # 사용자 관리 관련 API
+  # =====================================================
+  /users/total:
+    get:
+      tags:
+        - User
+      summary: 전체 사용자 수 조회
+      description: 전체 사용자 수와 등급별 사용자 수를 조회합니다.
+      operationId: getTotalUserCount
+      responses:
+        '200':
+          description: 전체 사용자 수 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+                type: object
+                properties:
+                  data:
+                    type: integer
+                    format: int64
+                    description: 전체 사용자 수
+              examples:
+                전체 사용자 수 조회 성공:
+                  value:
+                    data: 1247
+                    code: "USER_TOTAL_COUNT_SUCCESS"
+                    status: "OK"
+                    message: "전체 사용자 수 조회에 성공했습니다."
+                    timestamp: "2025-07-04T11:27:06.789Z"
+
+  /users:
+    get:
+      tags:
+        - User
+      summary: 전체 사용자 목록 조회
+      description: 전체 사용자 목록을 조회합니다.
+      operationId: getAllUsers
+      parameters:
+        - name: userType
+          in: query
+          required: false
+          description: 사용자 타입 (LINKED-연동, STANDARD-일반)
+          schema:
+            type: string
+            enum: [LINKED, STANDARD]
+        - name: grade
+          in: query
+          required: false
+          description: 사용자 등급
+          schema:
+            type: string
+            enum: [VVIP, VIP, BASIC]
+        - name: page
+          in: query
+          required: false
+          description: 페이지 번호 (0부터 시작)
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        - name: size
+          in: query
+          required: false
+          description: 페이지 크기
+          schema:
+            type: integer
+            format: int32
+            default: 8
+        - name: sort
+          in: query
+          required: false
+          description: 정렬 기준("필드, 방향")
+          schema:
+            type: string
+            default: id, asc
+      responses:
+        '200':
+          description: 사용자 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PagedResponse'
+              example:
+                data:
+                  content:
+                    - id: 1
+                      name: "김철수"
+                      email: "kim@example.com"
+                      phoneNumber: "010-1234-5678"
+                      birthday: "1990-01-01"
+                      grade: "VIP"
+                      userType: "LINKED"
+                    - id: 2
+                      name: "박영희"
+                      email: "park@example.com"
+                      phoneNumber: "010-9876-5432"
+                      birthday: "1985-05-15"
+                      grade: null
+                      userType: "STANDARD"
+                  page: 0
+                  totalPages: 5
+                  totalElements: 40
+                  hasNext: true
+                code: USER_PAGE_SUCCESS
+                status: OK
+                message: 사용자 목록 조회에 성공했습니다.
+                timestamp: '2025-07-17T12:00:00.000Z'
+
+  /users/batch-refresh:
+    post:
+      tags:
+        - User
+      summary: 사용자 정보 배치 갱신
+      description: 통신사 고객 정보와 서비스 내 사용자 정보를 동기화합니다. (신규 가입, 정보 수정, 탈퇴 처리)
+      operationId: refreshUserBatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBatchRefreshRequest'
+      responses:
+        '200':
+          description: 사용자 배치 갱신 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                사용자 배치 갱신 성공:
+                  value:
+                    code: "USER_BATCH_REFRESH_200"
+                    status: "OK"
+                    message: "사용자 정보 배치 갱신이 성공적으로 완료되었습니다."
+                    data:
+                      batchResult:
+                        totalProcessed: 1250
+                        newUsers: 45
+                        updatedUsers: 892
+                        deactivatedUsers: 23
+                        failedUsers: 0
+                        processingTime: "00:02:34"
+                        startTime: "2025-07-07T02:00:00.000Z"
+                        endTime: "2025-07-07T02:02:34.000Z"
+                    timestamp: "2025-07-07T02:02:34.123Z"
+        '400':
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                유효성 검증 실패:
+                  value:
+                    code: "USER_BATCH_VALIDATION_ERROR_400"
+                    status: "BAD_REQUEST"
+                    message: "배치 요청 데이터의 유효성 검증에 실패했습니다."
+                    data: null
+                    timestamp: "2025-07-07T02:00:00.123Z"
+        '409':
+          description: 배치 작업 중복 실행
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                배치 작업 중복:
+                  value:
+                    code: "USER_BATCH_ALREADY_RUNNING_409"
+                    status: "CONFLICT"
+                    message: "사용자 배치 작업이 이미 실행 중입니다."
+                    data: null
+                    timestamp: "2025-07-07T02:00:00.123Z"
+        '500':
+          description: 서버 내부 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                서버 오류:
+                  value:
+                    code: "INTERNAL_SERVER_ERROR_500"
+                    status: "INTERNAL_SERVER_ERROR"
+                    message: "서버 내부 오류가 발생했습니다."
+                    data: null
+                    timestamp: "2025-07-07T02:00:00.123Z"
+
+  /users/search:
+    get:
+      tags:
+        - User
+      summary: 사용자 검색
+      description: 사용자를 검색합니다.
+      operationId: searchUsers
+      parameters:
+        - name: keyword
+          in: query
+          required: true
+          description: 검색 키워드
+          schema:
+            type: string
+            minLength: 1
+            example: "김철수"
+        - name: page
+          in: query
+          required: false
+          description: 페이지 번호 (0부터 시작)
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        - name: size
+          in: query
+          required: false
+          description: 페이지 크기
+          schema:
+            type: integer
+            format: int32
+            default: 8
+      responses:
+        '200':
+          description: 검색된 사용자 리스트 반환
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PagedResponse'
+              examples:
+                검색성공:
+                  value:
+                    code: "USER_SEARCH_SUCCESS"
+                    status: "OK"
+                    message: "사용자 검색에 성공했습니다."
+                    data:
+                    content:
+                      - id: 1
+                        name: "김철수"
+                        email: "kim@example.com"
+                        phoneNumber: "010-1234-5678"
+                        birthday: "1990-01-01"
+                        grade: "VIP"
+                        userType: "LINKED"
+                      - id: 2
+                        name: "박영희"
+                        email: "park@example.com"
+                        phoneNumber: "010-9876-5432"
+                        birthday: "1985-05-15"
+                        grade: null
+                        userType: "STANDARD"
+                    page: 0
+                    totalPages: 5
+                    totalElements: 40
+                    hasNext: true
+        '400':
+          description: 잘못된 요청 (키워드가 없거나 공백인 경우)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                data: null
+                code: KEYWORD_REQUIRED
+                status: BAD_REQUEST
+                message: 검색 키워드가 필요합니다.
+                timestamp: '2025-07-17T12:00:00.000Z'
+
+  /users/{userId}:
+    get:
+      tags:
+        - User
+      summary: 사용자 혜택 이용내역
+      description: 특정 사용자의 혜택 이용내역을 조회합니다.
+      operationId: getUserBenefitUsage
+      parameters:
+        - name: userId
+          in: path
+          description: 사용자 ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 사용자 상세 정보 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                혜택 상세 정보 조회 성공:
+                  summary: 혜택 상세 정보 조회 예시
+                  value:
+                    code: "USER_DETAIL_SUCCESS"
+                    status: "OK"
+                    message: "사용자 혜택 이용내역이 성공적으로 조회되었습니다."
+                    data:
+                      userDetail:
+                        userId: 1
+                        userName: "홍길동"
+                        grade: "VIP"
+                        membershipId: 123456789
+                        membershipUsage:
+                          - benefitId: 31
+                            benefitName: "파리바게뜨"
+                            usageDate: "2025-07-05"
+                            discountAmount: 3000
+                          - benefitId: 31
+                            partnerName: "파리바게뜨"
+                            usageDate: "2025-07-06"
+                            discountAmount: 3000
+                        timestamp: "2025-07-04T11:27:06.789Z"
+
+  # =====================================================
+  # 혜택 관리 관련 API
+  # =====================================================
+  /benefits/total:
+    get:
+      tags:
+        - Benefit
+      summary: 전체 제휴처 수 조회
+      description: 전체 제휴처 수와 카테고리별 제휴처 수를 조회합니다.
+      operationId: getTotalBenefitCount
+      responses:
+        '200':
+          description: 전체 제휴처 수 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                전체 제휴처 수 조회 성공:
+                  value:
+                    code: "BENEFIT_TOTAL_COUNT_SUCCESS"
+                    status: "OK"
+                    message: "전체 제휴처 수가 성공적으로 조회되었습니다."
+                    data: 187
+                    timestamp: "2025-07-04T11:27:06.789Z"
+
+  /benefits:
+    get:
+      tags:
+        - Benefit
+      summary: 전체 제휴처 목록 조회
+      description: 전체 제휴처 목록을 조회합니다.
+      operationId: getAllPartners
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: 카테고리 (푸드, 엑티비티 등)
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          description: 혜택유형(증정, 할인)
+          schema:
+            type: string
+            enum: ["증정", "할인"]
+        - name: page
+          in: query
+          required: false
+          description: 페이지 번호 (0부터 시작)
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        - name: size
+          in: query
+          required: false
+          description: 페이지 크기
+          schema:
+            type: integer
+            format: int32
+            default: 8
+        - name: sort
+          in: query
+          required: false
+          description: 정렬 기준("필드, 방향") 중복 가능
+          schema:
+            type: string
+            default: id, asc
+      responses:
+        '200':
+          description: 제휴처 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                제휴처 목록 조회 성공:
+                  value:
+                    code: "BENEFITS_LIST_SUCCESS"
+                    status: "OK"
+                    message: "제휴처 목록이 성공적으로 조회되었습니다."
+                    data:
+                      content:
+                        - benefitId: 1
+                          partnerName: "CGV"
+                          mainCategory: "VIP콕"
+                          category: "문화/여가"
+                          type: "증정"
+                          image: "https://example.com/image.png"
+                          searchRank: 4
+                          favoriteRank: 2
+                          usageRank: 6
+                        - benefitId: 1
+                          partnerName: "CGV"
+                          mainCategory: "기본 혜택"
+                          category: "문화/여가"
+                          type: "증정"
+                          image: "https://example.com/image.png"
+                          searchRank: 4
+                          favoriteRank: 1
+                          usageRank: 2
+                      page: 0
+                      totalPages: 5
+                      totalElements: 40
+                      hasNext: true
+                      code: BENEFIT_PAGE_SUCCESS
+                      status: OK
+                      message: 제휴처 목록 조회에 성공했습니다.
+                      timestamp: '2025-07-17T12:00:00.000Z'
+        '400':
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                유효하지 않은 필터링:
+                  value:
+                    code: "INVALID_FILTERING"
+                    status: "BAD_REQUEST"
+                    message: "유효하지 않은 필터링입니다."
+                    data: null
+                    timestamp: "2025-07-04T11:27:06.789Z"
+
+  /benefits/batch-refresh:
+    post:
+      tags:
+        - Benefit
+      summary: 혜택 정보 배치 갱신
+      description: 통신사 제공 혜택 정보와 관리자 수정 혜택 정보를 동기화합니다.
+      operationId: refreshBenefitBatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BenefitBatchRefreshRequest'
+      responses:
+        '200':
+          description: 혜택 배치 갱신 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                혜택 배치 갱신 성공:
+                  value:
+                    code: "BENEFIT_BATCH_REFRESH_200"
+                    status: "OK"
+                    message: "혜택 정보 배치 갱신이 성공적으로 완료되었습니다."
+                    data:
+                      batchResult:
+                        totalProcessed: 523
+                        newBenefits: 12
+                        updatedBenefits: 487
+                        failedBenefits: 0
+                        conflictResolutions: 16
+                        processingTime: "00:01:23"
+                        startTime: "2025-07-07T03:00:00.000Z"
+                        endTime: "2025-07-07T03:01:23.000Z"
+                    timestamp: "2025-07-07T03:01:23.456Z"
+        '400':
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                유효성 검증 실패:
+                  value:
+                    code: "BENEFIT_BATCH_VALIDATION_ERROR_400"
+                    status: "BAD_REQUEST"
+                    message: "배치 요청 데이터의 유효성 검증에 실패했습니다."
+                    data: null
+                    timestamp: "2025-07-07T03:00:00.123Z"
+        '409':
+          description: 배치 작업 중복 실행
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                배치 작업 중복:
+                  value:
+                    code: "BENEFIT_BATCH_ALREADY_RUNNING_409"
+                    status: "CONFLICT"
+                    message: "혜택 배치 작업이 이미 실행 중입니다."
+                    data: null
+                    timestamp: "2025-07-07T03:00:00.123Z"
+        '500':
+          description: 서버 내부 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                서버 오류:
+                  value:
+                    code: "INTERNAL_SERVER_ERROR_500"
+                    status: "INTERNAL_SERVER_ERROR"
+                    message: "서버 내부 오류가 발생했습니다."
+                    data: null
+                    timestamp: "2025-07-07T03:00:00.123Z"
+
+  /benefits/search:
+    get:
+      tags:
+        - Benefit
+      summary: 제휴사 혜택 검색
+      description: 혜택 정보를 검색합니다.
+      operationId: searchBenefits
+      parameters:
+        - name: keyword
+          in: query
+          required: true
+          description: 검색어 (에버랜드)
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          description: 페이지 번호 (0부터 시작)
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        - name: size
+          in: query
+          required: false
+          description: 페이지 크기
+          schema:
+            type: integer
+            format: int32
+            default: 8
+        - name: sort
+          in: query
+          required: false
+          description: 정렬 기준("필드, 방향") 중복 가능
+          schema:
+            type: string
+            default: id, asc
+      responses:
+        '200':
+          description: 검색된 제휴처/혜택 리스트 반환
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PagedResponse'
+              examples:
+                검색성공:
+                  value:
+                    data:
+                      content:
+                        - benefitId: 1
+                          partnerName: "CGV"
+                          mainCategory: "VIP콕"
+                          category: "문화/여가"
+                          type: "증정"
+                          image: "https://example.com/image.png"
+                          searchRank: 4
+                          favoriteRank: 2
+                          usageRank: 6
+                        - benefitId: 1
+                          partnerName: "CGV"
+                          mainCategory: "기본 혜택"
+                          category: "문화/여가"
+                          type: "증정"
+                          image: "https://example.com/image.png"
+                          searchRank: 4
+                          favoriteRank: 1
+                          usageRank: 2
+                      page: 0
+                      totalPages: 5
+                      totalElements: 40
+                      hasNext: true
+                    code: "BENEFIT_SEARCH_SUCCESS"
+                    status: "OK"
+                    message: "혜택 검색이 성공적으로 처리되었습니다."
+                    timestamp: "2025-07-04T11:27:06.789Z"
+        '400':
+          description: 잘못된 요청 (키워드가 없거나 공백인 경우)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                data: null
+                code: KEYWORD_REQUIRED
+                status: BAD_REQUEST
+                message: 검색 키워드가 필요합니다.
+                timestamp: '2025-07-17T12:00:00.000Z'
+
+
+  /benefit/{benefitId}:
+    get:
+      tags:
+        - Benefit
+      summary: 혜택 상세 조회
+      description: 혜택 ID를 통해 혜택의 상세 정보를 조회합니다.
+      operationId: getBenefitDetail
+      parameters:
+        - name: benefitId
+          in: path
+          required: true
+          description: 조회할 혜택의 ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 혜택 상세 조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/BenefitDetailResponse'
+              example:
+                data:
+                  benefitId: 26
+                  benefitName: "딸기콩"
+                  description: "딸기콩은 웅진씽크빅에서 만든 국내 최대 어린이 오디오북 플랫폼으로 7,000여 개의 어린이 전문 콘텐츠를 기반으로 아이의 연령과 관심 영역에 맞춘 큐레이션을 제공합니다."
+                  benefitLimit: "VIP콕 내 제휴사 통합 월 1회, 연 12회 가능"
+                  manual: "멤버십앱 VIP 특별혜택 > 혜택 > 딸기콩 > 하단 '바로가기' 클릭 > 딸기콩 연동 후 등록\n\n\n\n\n*꼭 확인하세요\n\n\n- 딸기콩 구독권 또는 쿠폰 보유 시, 혜택 적용이 불가합니다.\n\n- 딸기콩 구독권 또는 쿠폰을 보유하고 계실 경우 딸기콩 1:1 문의 또는 웅진 고객센터(1577-1500)를 통해 혜택 적용이 가능합니다.\n\n- 본 혜택은 U+멤버십 혜택이 매달 자동 적용되지 않으며, 고객님께서 해당 페이지를 통해 매달 직접 신청하셔야 합니다.\n\n- 만 19세 이상 고객만 가입할 수 있습니다. \n\n\n\n대표문의\n\n딸기콩 고객센터 1577-1500"
+                  url: "https://www.ddalgicong.com/login/login.html"
+                  partnerName: "딸기콩"
+                  image: "https://example.com/image.png"
+                  tierBenefit:
+                    - grade: "BASIC"
+                      context: "2D 영화 2천원 할인"
+                      isAll: true
+                    - grade: "VIP"
+                      context: "2D 영화 2천원 할인"
+                      isAll: true
+                    - grade: "VVIP"
+                      context: "2D 영화 2천원 할인"
+                      isAll: true
+                code: BENEFIT_DETAIL_SUCCESS
+                status: OK
+                message: 혜택 상세 조회에 성공했습니다.
+                timestamp: '2025-07-16T12:00:00.000Z'
+
+        '404':
+          description: 혜택을 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                data: null
+                code: BENEFIT_NOT_FOUND
+                status: NOT_FOUND
+                message: 존재하지 않는 혜택입니다.
+                timestamp: '2025-07-16T12:00:00.000Z'
+
+    put:
+      tags:
+        - Benefit
+      summary: 혜택 정보 수정
+      description: 특정 혜택의 정보를 수정합니다.
+      operationId: updateBenefit
+      parameters:
+        - name: benefitId
+          in: path
+          description: 혜택 ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BenefitUpdateRequest'
+      responses:
+        '200':
+          description: 혜택 정보 수정 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                제휴처 정보 수정 성공:
+                  summary: 혜택 정보 수정 예시
+                  value:
+                    code: "BENEFIT_UPDATE_200"
+                    status: "OK"
+                    message: "혜택 정보가 성공적으로 수정되었습니다."
+                    data:
+                      benefitId: 26
+                      benefitName: "CGV"
+                      description: "CULTUREPLEX"
+                      benefitLimit: "월 1회"
+                      manual: "주저리주저리"
+                      url: "https://www.cgv.com"
+                      partnerName: "CGV"
+                      image: "https://example.com/image.png"
+                      tierBenefit:
+                        - grade: "BASIC"
+                          context: "2D 영화 2천원 할인"
+                          isAll: true
+                        - grade: "VIP"
+                          context: "2D 영화 2천원 할인"
+                          isAll: true
+                        - grade: "VVIP"
+                          context: "2D 영화 2천원 할인"
+                          isAll: true
+                      timestamp: "2025-07-04T11:27:06.789Z"
+
+components:
+  schemas:
+    # ----------------------------------------------------
+    # API 표준 응답 포맷
+    # ----------------------------------------------------
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: "서버에서 정의한 응답 코드"
+          example: "SUCCESS_200_1"
+        status:
+          type: string
+          description: "HTTP 상태 메시지"
+          example: "OK"
+        message:
+          type: string
+          description: "응답에 대한 설명 메시지"
+          example: "요청이 정상적으로 처리되었습니다."
+        data:
+          type: object
+          description: "실제 응답 데이터 (nullable)"
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+          description: "응답 시간"
+
+    # ----------------------------------------------------
+    # Request DTOs
+    # ----------------------------------------------------
+    UserBatchRefreshRequest:
+      type: object
+      required:
+        - carrierUsers
+      description: "사용자 배치 갱신 요청 DTO"
+      properties:
+        carrierUsers:
+          type: array
+          description: "통신사 고객 정보 목록"
+          items:
+            $ref: '#/components/schemas/CarrierUserInfo'
+        forceRefresh:
+          type: boolean
+          description: "강제 갱신 여부"
+          default: false
+
+    BenefitBatchRefreshRequest:
+      type: object
+      required:
+        - carrierBenefits
+      description: "혜택 배치 갱신 요청 DTO"
+      properties:
+        carrierBenefits:
+          type: array
+          description: "통신사 제공 혜택 정보 목록"
+          items:
+            $ref: '#/components/schemas/CarrierBenefitInfo'
+        forceRefresh:
+          type: boolean
+          description: "강제 갱신 여부"
+          default: false
+
+    BenefitUpdateRequest:
+      type: object
+      required:
+        - partnerName
+        - description
+      description: "혜택 정보 수정 요청 DTO"
+      properties:
+        partnerName:
+          type: string
+          description: "제휴처 이름"
+          example: "CGV"
+          maxLength: 100
+        benefitLimit:
+          type: string
+          description: "혜택 제한"
+          example: "월 1회"
+          maxLength: 50
+        description:
+          type: string
+          description: "혜택 설명"
+          example: "CULTUREPLEX"
+          maxLength: 500
+        manual:
+          type: string
+          description: "이용 방법"
+          example: "* 쿠폰 다운로드 방법 ..."
+          maxLength: 1000
+
+    # ----------------------------------------------------
+    # Response DTOs
+    # ----------------------------------------------------
+    UserResponse:
+      type: object
+      description: "사용자 정보 DTO"
+      properties:
+        userId:
+          type: integer
+          description: "사용자 ID"
+          example: 1
+        userName:
+          type: string
+          description: "사용자 이름"
+          example: "홍길동"
+        email:
+          type: string
+          format: email
+          description: "이메일"
+          example: "hong@example.com"
+        phoneNumber:
+          type: string
+          description: "전화번호"
+          example: "01000000000"
+        birthday:
+          type: string
+          description: "생년월일"
+          example: "1999.01.01"
+        grade:
+          type: string
+          description: "사용자 등급"
+          enum: [BASIC, VIP, VVIP]
+          example: "VIP"
+        userType:
+          type: string
+          description: "회원분류"
+          enum: [LINKED, STANDARD]
+          example: "LINKED"
+
+    PagedResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponse'
+          description: 사용자 목록
+        page:
+          type: integer
+          format: int32
+          description: 현재 페이지 번호
+        totalPages:
+          type: integer
+          format: int32
+          description: 전체 페이지 수
+        totalElements:
+          type: integer
+          format: int64
+          description: 전체 요소 수
+        hasNext:
+          type: boolean
+          description: 다음 페이지 존재 여부
+
+    UsageRankResponse:
+      type: object
+      description: "제휴처 이용 통계 정보 DTO"
+      properties:
+        partnerName:
+          type: string
+          description: "제휴처 이름"
+          example: "네이버플러스 멤버십"
+        vvipUsageCount:
+          type: integer
+          description: "VVIP 이용 횟수"
+          example: 220
+        vipUsageCount:
+          type: integer
+          description: "VIP 이용 횟수"
+          example: 520
+        basicUsageCount:
+          type: integer
+          description: "BASIC 이용 횟수"
+          example: 320
+        totalUsageCount:
+          type: integer
+          description: "전체 이용 횟수"
+          example: 1060
+
+    BenefitTotalCountInfo:
+      type: object
+      description: "전체 제휴처 수 정보 DTO"
+      properties:
+        totalBenefitCount:
+          type: integer
+          description: "전체 제휴처 수"
+          example: 187
+
+    FavoriteRankResponse:
+      type: object
+      description: "즐겨찾기 혜택 정보 DTO"
+      properties:
+        benefitId:
+          type: integer
+          description: "혜택 ID"
+          example: 1
+        partnerName:
+          type: string
+          description: "제휴처 이름"
+          example: "CGV"
+        benefitName:
+          type: string
+          description: "혜택 이름"
+          example: "2천원 할인"
+        favoriteCount:
+          type: integer
+          description: "즐겨찾기 횟수"
+          example: 156
+        rank:
+          type: integer
+          description: "순위"
+          example: 1
+
+    UserBenefitUsageInfo:
+      type: object
+      description: "사용자 혜택 이용내역 DTO"
+      properties:
+        userId:
+          type: integer
+          description: "사용자 ID"
+          example: 1
+        userName:
+          type: string
+          description: "사용자 이름"
+          example: "홍길동"
+        grade:
+          type: string
+          description: "사용자 등급"
+          enum: [BASIC, VIP, VVIP]
+          example: "VIP"
+        membershipId:
+          type: integer
+          description: "멤버십 ID"
+          example: 123456789
+        membershipUsage:
+          type: array
+          description: "멤버십 이용 내역"
+          items:
+            $ref: '#/components/schemas/MembershipUsageInfo'
+
+    MembershipUsageInfo:
+      type: object
+      description: "멤버십 이용 내역 DTO"
+      properties:
+        partnerName:
+          type: string
+          description: "제휴처 이름"
+          example: "파리바게뜨"
+        usageDate:
+          type: string
+          format: date
+          description: "이용 날짜"
+          example: "2025-07-05"
+        discountAmount:
+          type: integer
+          description: "할인 금액"
+          example: 3000
+
+    SearchRanking:
+      type: object
+      description: "검색 순위 DTO"
+      properties:
+        partnerName:
+          type: string
+          description: "제휴사 이름"
+          example: "CGV"
+        searchCount:
+          type: integer
+          description: "검색 횟수"
+          example: 3420
+        rank:
+          type: integer
+          description: "순위"
+          example: 1
+          minimum: 1
+
+    MostClickedPartner:
+      type: object
+      description: "자주 클릭한 제휴처 DTO"
+      properties:
+        partnerId:
+          type: integer
+          description: "제휴처 ID"
+          example: 1
+        partnerName:
+          type: string
+          description: "제휴처 이름"
+          example: "CGV"
+        clickCount:
+          type: integer
+          description: "클릭 횟수"
+          example: 12450
+        rank:
+          type: integer
+          description: "순위"
+          example: 1
+          minimum: 1
+
+    BenefitDetailInfo:
+      type: object
+      description: "혜택 상세 정보 DTO"
+      properties:
+        benefitId:
+          type: integer
+          description: "혜택 ID"
+          example: 1
+        partnerName:
+          type: string
+          description: "제휴처 이름"
+          example: "CGV"
+        benefitName:
+          type: string
+          description: "혜택 이름"
+          example: "2D영화 2천원 할인"
+        benefitLimit:
+          type: string
+          description: "혜택 제한"
+          example: "월 1회"
+        description:
+          type: string
+          description: "혜택 설명"
+          example: "CULTUREPLEX"
+        manual:
+          type: string
+          description: "이용 방법"
+          example: "* 쿠폰 다운로드 방법 ..."
+
+    CarrierUserInfo:
+      type: object
+      required:
+        - carrierUserId
+        - userName
+        - grade
+        - phoneNumber
+      description: "통신사 고객 정보 DTO"
+      properties:
+        carrierUserId:
+          type: string
+          description: "통신사 고객 ID"
+          example: "CU123456789"
+        userName:
+          type: string
+          description: "고객 이름"
+          example: "홍길동"
+        grade:
+          type: string
+          description: "고객 등급"
+          enum: [BASIC, VIP, VVIP]
+          example: "VIP"
+        phoneNumber:
+          type: string
+          description: "전화번호"
+          example: "010-0000-0000"
+        gender:
+          type: string
+          description: "성별"
+          example: "남자"
+        birthday:
+          type: string
+          format: date
+          description: "생년월일"
+          example: "1990-01-01"
+        membershipId:
+          type: integer
+          description: "멤버십 ID"
+          example: 123456789
+        lastUpdated:
+          type: string
+          format: date-time
+          description: "마지막 수정 시간"
+          example: "2025-07-07T01:00:00.000Z"
+
+    CarrierBenefitInfo:
+      type: object
+      required:
+        - carrierBenefitId
+        - partnerName
+        - benefitName
+        - mainCategory
+        - category
+      description: "통신사 혜택 정보 DTO"
+      properties:
+        carrierBenefitId:
+          type: integer
+          description: "통신사 혜택 ID"
+          example: 1
+        partnerName:
+          type: string
+          description: "제휴처 이름"
+          example: "CGV"
+        benefitName:
+          type: string
+          description: "혜택 이름"
+          example: "2D영화 2천원 할인"
+        mainCategory:
+          type: string
+          description: "주요 카테고리"
+          enum: ["VIP콕", "기본 혜택"]
+          example: "VIP콕"
+        category:
+          type: string
+          description: "상세 카테고리"
+          example: "문화/여가"
+        benefitType:
+          type: string
+          description: "혜택 유형"
+          enum: ["DISCOUNT", "FREE_GIFT"]
+          example: "DISCOUNT"
+        benefitLimit:
+          type: string
+          description: "제공 횟수"
+          example: "월 1회"
+        description:
+          type: string
+          description: "혜택 설명"
+          example: "CULTUREPLEX 2D영화 관람 시 2천원 할인"
+        manual:
+          type: string
+          description: "이용 방법"
+          example: "앱에서 쿠폰 다운로드 후 매장에서 제시"
+        lastUpdated:
+          type: string
+          format: date-time
+          description: "마지막 수정 시간"
+          example: "2025-07-07T01:00:00.000Z"
+
+    BatchResultInfo:
+      type: object
+      description: "배치 결과 정보 DTO"
+      properties:
+        totalProcessed:
+          type: integer
+          description: "총 처리 건수"
+          example: 1250
+        newUsers:
+          type: integer
+          description: "신규 사용자 수"
+          example: 45
+        updatedUsers:
+          type: integer
+          description: "수정된 사용자 수"
+          example: 892
+        deactivatedUsers:
+          type: integer
+          description: "비활성화된 사용자 수"
+          example: 23
+        failedUsers:
+          type: integer
+          description: "실패한 사용자 수"
+          example: 0
+        newBenefits:
+          type: integer
+          description: "신규 혜택 수"
+          example: 12
+        updatedBenefits:
+          type: integer
+          description: "수정된 혜택 수"
+          example: 487
+        deactivatedBenefits:
+          type: integer
+          description: "비활성화된 혜택 수"
+          example: 8
+        failedBenefits:
+          type: integer
+          description: "실패한 혜택 수"
+          example: 0
+        conflictResolutions:
+          type: integer
+          description: "충돌 해결 건수"
+          example: 16
+        processingTime:
+          type: string
+          description: "처리 시간"
+          example: "00:02:34"
+        startTime:
+          type: string
+          format: date-time
+          description: "시작 시간"
+          example: "2025-07-07T02:00:00.000Z"
+        endTime:
+          type: string
+          format: date-time
+          description: "종료 시간"
+          example: "2025-07-07T02:02:34.000Z"
+
+    BenefitDetailResponse:
+      type: object
+      properties:
+        benefitId:
+          type: integer
+          format: int64
+        benefitName:
+          type: string
+        description:
+          type: string
+        benefitLimit:
+          type: string
+        manual:
+          type: string
+        url:
+          type: string
+          format: uri
+        partnerName:
+          type: string
+        image:
+          type: string
+          format: uri
+        tierBenefit:
+          type: array
+          description: "멤버십 이용 내역"
+          items:
+            $ref: '#/components/schemas/TierBenefitDto'
+
+    TierBenefitDto:
+      type: object
+      properties:
+        grade:
+          type: string
+        context:
+          type: string
+        isAll:
+          type: boolean
