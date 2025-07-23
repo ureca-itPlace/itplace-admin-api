@@ -17,4 +17,5 @@ public interface BenefitRepository extends JpaRepository<Benefit, Long> {
 """)
     Optional<Benefit> findBenefitWithPartnerById(@Param("benefitId") Long benefitId);
 
+    Optional<Benefit> findByBenefitId(Long benefitId);
 }
