@@ -551,36 +551,82 @@ paths:
           required: true
           schema:
             type: integer
+            format: int64
       responses:
         '200':
           description: 사용자 상세 정보 조회 성공
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/MembershipHistoryResponse'
               examples:
-                혜택 상세 정보 조회 성공:
-                  summary: 혜택 상세 정보 조회 예시
+                정상_이용내역_존재:
+                  summary: 혜택 이용 내역이 존재하는 경우
                   value:
-                    code: "USER_DETAIL_SUCCESS"
-                    status: "OK"
-                    message: "사용자 혜택 이용내역이 성공적으로 조회되었습니다."
                     data:
-                      userDetail:
-                        userId: 1
-                        userName: "홍길동"
-                        grade: "VIP"
-                        membershipId: 123456789
-                        membershipUsage:
-                          - benefitId: 31
-                            benefitName: "파리바게뜨"
-                            usageDate: "2025-07-05"
-                            discountAmount: 3000
-                          - benefitId: 31
-                            partnerName: "파리바게뜨"
-                            usageDate: "2025-07-06"
-                            discountAmount: 3000
-                        timestamp: "2025-07-04T11:27:06.789Z"
+                      userId: 1633
+                      userName: "오소연"
+                      membershipId: "2332209383100531"
+                      membershipGrade: "BASIC"
+                      membershipUsage:
+                        - benefitId: 31
+                          benefitName: "파리바게뜨"
+                          usedAt: "2025-07-05"
+                          discountAmount: 3000
+                        - benefitId: 31
+                          benefitName: "파리바게뜨"
+                          usedAt: "2025-07-06"
+                          discountAmount: 3000
+                    code: USER_DETAIL_SUCCESS
+                    status: OK
+                    message: 사용자 혜택 이용내역이 성공적으로 조회되었습니다.
+                    timestamp: "2025-07-23T12:00:00.000Z"
+
+                멤버십아이디_없음:
+                  summary: 사용자는 존재하지만 멤버십 ID가 없는 경우
+                  value:
+                    data:
+                      userId: 1634
+                      userName: "김예은"
+                      membershipId: null
+                      membershipGrade: null
+                      membershipUsage: []
+                    code: USER_DETAIL_SUCCESS
+                    status: OK
+                    message: 사용자 혜택 이용내역이 성공적으로 조회되었습니다.
+                    timestamp: "2025-07-23T12:00:00.000Z"
+
+                멤버십은_있지만_이용내역_없음:
+                  summary: 멤버십은 있지만 혜택 이용 내역이 없는 경우
+                  value:
+                    data:
+                      userId: 1635
+                      userName: "조지우"
+                      membershipId: "2245511666140922"
+                      membershipGrade: "BASIC"
+                      membershipUsage: []
+                    code: USER_DETAIL_SUCCESS
+                    status: OK
+                    message: 사용자 혜택 이용내역이 성공적으로 조회되었습니다.
+                    timestamp: "2025-07-23T12:00:00.000Z"
+
+        '404':
+          description: 사용자를 찾을 수 없는 경우
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                data: null
+                code: USER_NOT_FOUND
+                status: NOT_FOUND
+                message: 사용자 정보를 찾을 수 없습니다.
+                timestamp: "2025-07-23T12:00:00.000Z"
 
   # =====================================================
   # 혜택 관리 관련 API
@@ -1510,3 +1556,36 @@ components:
           type: string
         isAll:
           type: boolean
+
+    MembershipHistoryResponse:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        userName:
+          type: string
+        membershipId:
+          type: string
+        membershipGrade:
+          type: string
+          enum: [BASIC, VIP, VVIP]
+        membershipUsage:
+          type: array
+          items:
+            $ref: '#/components/schemas/MembershipUsage'
+
+    MembershipUsage:
+      type: object
+      properties:
+        benefitId:
+          type: integer
+          format: int64
+        benefitName:
+          type: string
+        usedAt:
+          type: string
+          format: date
+        discountAmount:
+          type: integer
+          format: int64
