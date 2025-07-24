@@ -21,6 +21,24 @@ jobs:
       # 1. 소스 코드 체크아웃
       - uses: actions/checkout@v3
 
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver: docker-container
+
       # 2. OpenJDK 17 설치
       - name: Install JDK 17
         uses: actions/setup-java@v3
@@ -33,7 +51,7 @@ jobs:
         run: |
           echo ${{secrets.APPLICATION_SECRET}} | base64 --decode > ./src/main/resources/application-secret.yml
           chmod +x ./gradlew
-          ./gradlew build -x test
+          ./gradlew build -x test --parallel --configure-on-demand
 
       # 4. DockerHub 로그인
       - name: Login to DockerHub
@@ -41,7 +59,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
+          
       # 5. Docker 이미지 빌드 및 푸시 (효율적인 방식으로 통합)
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
@@ -50,7 +68,11 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/admin_develop_server:latest
-
+          cache-from: |
+            type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/admin_develop_server:cache
+          cache-to: |
+            type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/admin_develop_server:cache,mode=max
+            
   # 'deploy' 작업
   deploy:
     needs: build # 'build' 작업이 성공해야 실행됨
@@ -99,8 +121,8 @@ jobs:
         uses: jtalk/url-health-check-action@v3
         with:
           url: http://${{ secrets.LIVE_SERVER_IP }}:${{env.STOPPED_PORT}}/env
-          max-attempts: 7
-          retry-delay: 10s
+          max-attempts: 10
+          retry-delay: 7s
 
       # 4. Nginx Upstream 변경하여 트래픽 전환
       - name: Change nginx upstream
@@ -113,8 +135,8 @@ jobs:
             # Alpine 컨테이너를 위해 bash 대신 sh 사용
             sudo docker exec -i nginxserver sh -c 'echo "set \$service_url ${{ env.TARGET_UPSTREAM }};" > /etc/nginx/conf.d/service-env.inc && nginx -s reload'
 
-      # 5. 이전 버전의 서버 중지 및 제거
-      - name: Stop current server
+      # 5. 이전 버전의 서버 중지 및 제거 / 미사용 이미지 삭제
+      - name: Stop current server and clean images
         uses: appleboy/ssh-action@v1.0.3 # 버전 고정 및 script_stop 제거
         with:
           username: ubuntu
@@ -130,3 +152,6 @@ jobs:
             else
               echo "Container ${CONTAINER_NAME} not found or not running. Skipping."
             fi
+           
+            echo "Pruning unused Docker images..."
+            sudo docker image prune -a -f

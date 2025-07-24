@@ -36,13 +36,13 @@ public class User extends BaseTimeEntity {
     @Column(name = "name", length = 30)
     private String name;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "password")
     private String password;
 
-    @Column(name = "phoneNumber", length = 11)
+    @Column(name = "phoneNumber", length = 11, unique = true)
     private String phoneNumber;
 
     @Column(name = "gender", length = 5)
@@ -55,4 +55,7 @@ public class User extends BaseTimeEntity {
     @Column(name = "membershipId", length = 16)
     private String membershipId;
 
+    @Column(name = "role", nullable = false, length = 5)
+    @Enumerated(EnumType.STRING)
+    private Role role;
 }
