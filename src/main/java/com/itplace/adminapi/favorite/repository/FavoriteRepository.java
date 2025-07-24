@@ -16,9 +16,9 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
             b.mainCategory AS mainCategory,
             COUNT(*) AS favoriteCount,
             ROW_NUMBER() OVER (ORDER BY COUNT(*) DESC) AS favoriteRank
-            FROM Favorite f
-            JOIN Benefit b ON f.benefitId = b.benefitId
-            JOIN Partner p ON b.partnerId = p.partnerId
+            FROM favorite f
+            JOIN benefit b ON f.benefitId = b.benefitId
+            JOIN partner p ON b.partnerId = p.partnerId
             GROUP BY f.benefitId
             ORDER BY COUNT(f.userId) DESC
             LIMIT :limit;
@@ -28,8 +28,8 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     @Query(value = """
             SELECT f.benefitId AS Id, COUNT(*) AS count
             FROM favorite f
-            JOIN Benefit b ON f.benefitId = b.benefitId
-            WHERE b.mainCategory = "기본 혜택"
+            JOIN benefit b ON f.benefitId = b.benefitId
+            WHERE b.mainCategory = '기본 혜택'
             GROUP BY f.benefitId
             ORDER BY count desc
         """, nativeQuery = true)
@@ -38,8 +38,8 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     @Query(value = """
                 SELECT f.benefitId AS Id, COUNT(*) AS count
                 FROM favorite f
-                JOIN Benefit b ON f.benefitId = b.benefitId
-                WHERE b.mainCategory = "VIP 콕"
+                JOIN benefit b ON f.benefitId = b.benefitId
+                WHERE b.mainCategory = 'VIP 콕'
                 GROUP BY f.benefitId
                 ORDER BY count desc
             """, nativeQuery = true)
