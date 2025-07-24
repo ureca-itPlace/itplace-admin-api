@@ -7,8 +7,10 @@ info:
     모든 API 응답은 표준 응답 포맷(ApiResponse)을 따릅니다.
   version: 1.0.0
 servers:
+  - url: https://admin-api.itplace.click/api/v1
+    description: 배포 개발 서버
   - url: http://localhost:8081/api/v1
-    description: 개발 서버
+    description: 로컬 개발 서버
 tags:
   - name: Dashboard
     description: 대시보드 통계 정보 조회 관련 API
