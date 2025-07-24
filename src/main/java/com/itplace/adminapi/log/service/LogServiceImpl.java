@@ -3,9 +3,8 @@ package com.itplace.adminapi.log.service;
 import com.itplace.adminapi.benefit.entity.Benefit;
 import com.itplace.adminapi.benefit.repository.BenefitRepository;
 import com.itplace.adminapi.log.dto.ClickRankResponse;
-import com.itplace.adminapi.log.dto.ClickRankResult;
 import com.itplace.adminapi.log.dto.SearchRankResponse;
-import com.itplace.adminapi.log.dto.SearchRankResult;
+import com.itplace.adminapi.log.dto.RankResult;
 import com.itplace.adminapi.log.repository.LogRepository;
 import com.itplace.adminapi.partner.entity.Partner;
 import com.itplace.adminapi.partner.repository.PartnerRepository;
@@ -31,19 +30,19 @@ public class LogServiceImpl implements LogService{
     @Override
     public List<ClickRankResponse> clickRank(int limit) {
         Instant from = Instant.now().minus(Duration.ofDays(300));
-        List<ClickRankResult> topClicks = logRepository.findTopClickRank(from, limit);
+        List<RankResult> topClicks = logRepository.findTopClickRank(from, limit);
 
         return topClicks.stream()
                 .map(click -> {
-                    Optional<Benefit> benefitOptional = benefitRepository.findByBenefitId(click.getBenefitId());
-                    System.out.println("benefitId: " + click.getBenefitId());
+                    Optional<Benefit> benefitOptional = benefitRepository.findByBenefitId(click.getId());
+                    System.out.println("benefitId: " + click.getId());
                     String partnerName = null;
                     if(benefitOptional.isPresent()){
                         Benefit benefit = benefitOptional.get();
                         partnerName = benefit.getPartner().getPartnerName();
                     }
                     return new ClickRankResponse(
-                            partnerName, click.getClickCount()
+                            partnerName, click.getCount()
                     );
                 })
                 .toList();
@@ -56,19 +55,19 @@ public class LogServiceImpl implements LogService{
         Instant prevFrom = from.minus(Duration.ofDays(prevDay));
         Instant prevTo = from;
 
-        List<SearchRankResult> recentRanks = logRepository.findTopSearchRank(from, now, limit);
-        List<SearchRankResult> prevRanks = logRepository.findTopSearchRank(prevFrom, prevTo, limit);
+        List<RankResult> recentRanks = logRepository.findTopSearchRank(from, now, limit);
+        List<RankResult> prevRanks = logRepository.findTopSearchRank(prevFrom, prevTo, limit);
 
         Map<Long, Long> prevRankMap = new HashMap<>();
         AtomicLong prevCount = new AtomicLong(1);
-        prevRanks.stream().sorted(Comparator.comparing(SearchRankResult::getSearchCount).reversed())
+        prevRanks.stream().sorted(Comparator.comparing(RankResult::getCount).reversed())
                 .forEach(searchRank ->
-                        prevRankMap.put(searchRank.getPartnerId(), prevCount.getAndIncrement()));
+                        prevRankMap.put(searchRank.getId(), prevCount.getAndIncrement()));
 
         AtomicLong rankCount = new AtomicLong(1);
 
         return recentRanks.stream().map(r -> {
-            Optional<Partner> partnerOpt = partnerRepository.findById(r.getPartnerId());
+            Optional<Partner> partnerOpt = partnerRepository.findById(r.getId());
             String partnerName = null;
             if(partnerOpt.isPresent()){
                 Partner  partner = partnerOpt.get();
@@ -76,7 +75,7 @@ public class LogServiceImpl implements LogService{
             }
             long rank = rankCount.getAndIncrement();
 
-            Long prevRank = prevRankMap.getOrDefault(r.getPartnerId(), 0L);
+            Long prevRank = prevRankMap.getOrDefault(r.getId(), 0L);
             System.out.println("prevRank: " + prevRank);
 
             long rankChange = prevRank == 0 ? 0 : prevRank - rank;
@@ -89,7 +88,7 @@ public class LogServiceImpl implements LogService{
 
             return new SearchRankResponse(
                     partnerName,
-                    r.getSearchCount(),
+                    r.getCount(),
                     rank,
                     prevRank == 0L ? 99999 : prevRank,
                     rankChange,

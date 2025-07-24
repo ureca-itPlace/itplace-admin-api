@@ -1,6 +1,8 @@
 package com.itplace.adminapi.benefit.repository;
 
 import com.itplace.adminapi.benefit.entity.Benefit;
+import com.itplace.adminapi.benefit.entity.enums.MainCategory;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +20,6 @@ public interface BenefitRepository extends JpaRepository<Benefit, Long> {
     Optional<Benefit> findBenefitWithPartnerById(@Param("benefitId") Long benefitId);
 
     Optional<Benefit> findByBenefitId(Long benefitId);
+
+    List<Benefit> findAllByMainCategory(MainCategory mainCategory);
 }

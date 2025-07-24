@@ -1,12 +1,9 @@
 package com.itplace.adminapi.history.repository;
 
 import com.itplace.adminapi.history.entity.MembershipHistory;
+import com.itplace.adminapi.log.dto.RankResult;
 import com.itplace.adminapi.partner.dto.UsageRankProjection;
-import com.itplace.adminapi.partner.dto.UsageRankResponse;
-import java.time.LocalDateTime;
 import java.util.List;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,4 +29,24 @@ public interface MembershipHistoryRepository extends JpaRepository<MembershipHis
     List<UsageRankProjection> findTop5PartnerId(@Param("days") int days);
 
     List<MembershipHistory> findByMembership_MembershipIdOrderByUsedAtDesc(String membershipId);
+
+    @Query(value = """
+                SELECT mh.benefitId AS Id, COUNT(*) AS count
+                FROM membershipHistory mh
+                JOIN Benefit b ON mh.benefitId = b.benefitId
+                WHERE b.mainCategory = "기본 혜택"
+                GROUP BY mh.benefitId
+                ORDER BY count desc
+            """, nativeQuery = true)
+    List<RankResult> findBasicHistoryRank();
+
+    @Query(value = """
+                SELECT mh.benefitId AS Id, COUNT(*) AS count
+                FROM membershipHistory mh
+                JOIN Benefit b ON mh.benefitId = b.benefitId
+                WHERE b.mainCategory = "VIP 콕"
+                GROUP BY mh.benefitId
+                ORDER BY count desc
+            """, nativeQuery = true)
+    List<RankResult> findVipHistoryRank();
 }
