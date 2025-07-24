@@ -26,6 +26,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -71,16 +72,33 @@ public class SecurityConfig {
 //                .sessionManagement(session ->
 //                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
 //                ); // 세션 필요 시 생성
+//        http
+//                .securityContext(context -> context.requireExplicitSave(false));
 
         // 경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                                .requestMatchers("/api/v1/login", "/**").permitAll()
+                                .requestMatchers(
+                                        "/api/v1/auth/login",
+                                        "/swagger-ui/**",
+                                        "/v3/api-docs/**",
+                                        "/api-docs").permitAll()
                                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated());
 
-//        http
-//                .securityContext(context -> context.requireExplicitSave(false));
+        http
+                .logout(logout -> logout
+                        .logoutUrl("/api/v1/auth/logout") // 로그아웃 처리 URL
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            // 로그아웃 성공 시 200 OK 상태 코드와 간단한 JSON 응답
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                            objectMapper.writeValue(response.getWriter(), ApiResponse.ok(SecurityCode.LOGOUT_SUCCESS)); // 성공 코드 추가 시
+                        })
+                        .invalidateHttpSession(true) // 세션 무효화
+                        .deleteCookies("JSESSIONID") // JSESSIONID 쿠키 삭제
+                );
 
         http
                 .addFilterAt(loginFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -96,6 +114,7 @@ public class SecurityConfig {
     @Bean
     public LoginFilter loginFilter() throws Exception {
         LoginFilter filter = new LoginFilter(objectMapper);
+        filter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/api/v1/auth/login", "POST"));
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         filter.setAuthenticationSuccessHandler(loginSuccessHandler());
         filter.setAuthenticationFailureHandler(loginFailureHandler());
@@ -111,9 +130,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler loginSuccessHandler() {
         return (request, response, authentication) -> {
-            // 세션이 없으면 생성
             HttpSession session = request.getSession(true);
-            // 세션 ID 갱신 (Servlet 3.1+)
             request.changeSessionId();
 
             // SecurityContext 저장
