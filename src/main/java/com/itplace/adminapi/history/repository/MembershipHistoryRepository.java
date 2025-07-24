@@ -17,10 +17,10 @@ public interface MembershipHistoryRepository extends JpaRepository<MembershipHis
                 SUM(CASE WHEN m.grade = 'VIP' THEN 1 ELSE 0 END) AS vipUsageCount,
                 SUM(CASE WHEN m.grade = 'BASIC' THEN 1 ELSE 0 END) AS basicUsageCount,
                 COUNT(*) AS totalUsageCount
-                FROM MembershipHistory mh
-                JOIN Benefit b ON mh.benefitId = b.benefitId
-                JOIN Partner p ON b.partnerId = p.partnerId
-                JOIN Membership m ON m.membershipId = mh.membershipId
+                FROM membershipHistory mh
+                JOIN benefit b ON mh.benefitId = b.benefitId
+                JOIN partner p ON b.partnerId = p.partnerId
+                JOIN membership m ON m.membershipId = mh.membershipId
                 WHERE mh.usedAt >= DATE_SUB(NOW(), INTERVAL :days DAY)
                 GROUP BY b.partnerId
                 ORDER BY COUNT(mh.membershipId) DESC
@@ -33,8 +33,8 @@ public interface MembershipHistoryRepository extends JpaRepository<MembershipHis
     @Query(value = """
                 SELECT mh.benefitId AS Id, COUNT(*) AS count
                 FROM membershipHistory mh
-                JOIN Benefit b ON mh.benefitId = b.benefitId
-                WHERE b.mainCategory = "기본 혜택"
+                JOIN benefit b ON mh.benefitId = b.benefitId
+                WHERE b.mainCategory = '기본 혜택'
                 GROUP BY mh.benefitId
                 ORDER BY count desc
             """, nativeQuery = true)
@@ -43,8 +43,8 @@ public interface MembershipHistoryRepository extends JpaRepository<MembershipHis
     @Query(value = """
                 SELECT mh.benefitId AS Id, COUNT(*) AS count
                 FROM membershipHistory mh
-                JOIN Benefit b ON mh.benefitId = b.benefitId
-                WHERE b.mainCategory = "VIP 콕"
+                JOIN benefit b ON mh.benefitId = b.benefitId
+                WHERE b.mainCategory = 'VIP 콕'
                 GROUP BY mh.benefitId
                 ORDER BY count desc
             """, nativeQuery = true)
