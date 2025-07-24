@@ -2,6 +2,7 @@ package com.itplace.adminapi.user.repository;
 
 import com.itplace.adminapi.benefit.entity.enums.Grade;
 import com.itplace.adminapi.user.entity.User;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,4 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     SELECT u FROM User u WHERE u.name LIKE %:keyword% OR u.email LIKE %:keyword%
     """)
     Page<User> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    Optional<User> findByEmail(String email);
 }
