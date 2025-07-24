@@ -12,6 +12,8 @@ servers:
   - url: http://localhost:8081/api/v1
     description: 로컬 개발 서버
 tags:
+  - name: Auth
+    description: 관리자 로그인 및 로그아웃 관련 API
   - name: Dashboard
     description: 대시보드 통계 정보 조회 관련 API
   - name: User
@@ -20,6 +22,75 @@ tags:
     description: 제휴처 및 혜택 관리 관련 API
 
 paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: 관리자 로그인
+      description: 이메일과 비밀번호로 로그인하여 세션(JSESSIONID 쿠키)을 발급받습니다.
+      operationId: adminLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: "admin@example.com"
+              password: "password123"
+      responses:
+        '200':
+          description: 로그인 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                로그인 성공:
+                  value:
+                    code: "LOGIN_SUCCESS"
+                    status: "OK"
+                    message: "성공적으로 로그인 되었습니다."
+                    data: null
+                    timestamp: "2025-07-24T12:00:00.000Z"
+        '401':
+          description: 로그인 실패 (이메일 또는 비밀번호 불일치)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                로그인 실패:
+                  value:
+                    code: "LOGIN_FAIL"
+                    status: "UNAUTHORIZED"
+                    message: "이메일 또는 비밀번호가 일치하지 않습니다."
+                    data: null
+                    timestamp: "2025-07-24T12:00:00.000Z"
+
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: 관리자 로그아웃
+      description: 현재 세션을 무효화하고 로그아웃 처리합니다.
+      operationId: adminLogout
+      responses:
+        '200':
+          description: 로그아웃 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                로그아웃 성공:
+                  value:
+                    code: "LOGOUT_SUCCESS"
+                    status: "OK"
+                    message: "성공적으로 로그아웃 되었습니다."
+                    data: null
+                    timestamp: "2025-07-24T12:00:00.000Z"
+
   # =====================================================
   # 대시보드 관련 API
   # =====================================================
@@ -841,6 +912,21 @@ components:
     # ----------------------------------------------------
     # Request DTOs
     # ----------------------------------------------------
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: "관리자 이메일"
+        password:
+          type: string
+          format: password
+          description: "비밀번호"
+
     UserBatchRefreshRequest:
       type: object
       required:
