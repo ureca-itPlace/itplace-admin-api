@@ -750,29 +750,51 @@ paths:
                 message: 혜택 정보가 성공적으로 수정되었습니다.
                 timestamp: "2025-07-23T12:00:00.000Z"
         '400':
-          description: 수정할 내용이 없는 경우
+          description: 잘못된 요청(변경된 값 없음, 잘못된 제한 횟수 입력)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
-              example:
-                data: null
-                code: BENEFIT_NOT_UPDATED
-                status: BAD_REQUEST
-                message: 변경된 값이 없습니다.
-                timestamp: "2025-07-23T12:00:00.000Z"
+              examples:
+                noUpdate:
+                  summary: 변경된 값 없음
+                  value:
+                    data: null
+                    code: BENEFIT_NOT_UPDATED
+                    status: BAD_REQUEST
+                    message: 변경된 값이 없습니다.
+                    timestamp: "2025-07-23T12:00:00.000Z"
+                invalidPolicy:
+                  summary: 잘못된 혜택 정책명(제한 횟수) 입력 (월 1회, 일 1회, 제한없음, 최초 1회 중 하나여야 함)
+                  value:
+                    data: null
+                    code: INVALID_BENEFIT_POLICY
+                    status: BAD_REQUEST
+                    message: 잘못된 혜택 정책입니다.
+                    timestamp: "2025-07-23T12:00:00.000Z"
         '404':
-          description: 존재하지 않는 혜택 ID
+          description: 존재하지 않는 혜택 또는 정책
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
-              example:
-                data: null
-                code: BENEFIT_NOT_FOUND
-                status: NOT_FOUND
-                message: 존재하지 않는 혜택입니다.
-                timestamp: "2025-07-23T12:00:00.000Z"
+              examples:
+                benefitNotFound:
+                  summary: 존재하지 않는 혜택 ID
+                  value:
+                    data: null
+                    code: BENEFIT_NOT_FOUND
+                    status: NOT_FOUND
+                    message: 존재하지 않는 혜택입니다.
+                    timestamp: "2025-07-23T12:00:00.000Z"
+                benefitPolicyNotFound:
+                  summary: 존재하지 않는 혜택 정책
+                  value:
+                    data: null
+                    code: BENEFIT_POLICY_NOT_FOUND
+                    status: NOT_FOUND
+                    message: 존재하지 않는 혜택 정책입니다.
+                    timestamp: "2025-07-23T12:00:00.000Z"
 
   /benefits:
     get:
