@@ -116,7 +116,7 @@ public class BenefitServiceImpl implements BenefitService {
         int page = request.getPage() != null ? request.getPage() : 0;
         int size = request.getSize() != null ? request.getSize() : 8;
         String sortBy = request.getSortBy() != null ? request.getSortBy() : "id";
-        Sort.Direction direction = Sort.Direction.fromString(request.getDirector() != null ? request.getDirector() : "asc");
+        Sort.Direction direction = Sort.Direction.fromString(request.getDirection() != null ? request.getDirection() : "asc");
         MainCategory mainCategory = request.getMainCategory() != null ? request.getMainCategory() : MainCategory.BASIC_BENEFIT;
 
         Map<Long, Integer> searchRankMap = getRankMap(logRepository.findSearchRank());
