@@ -10,7 +10,7 @@ public class BenefitListRequest {
     private Integer page;        // default : 0
     private Integer size;        // default : 8
     private String sortBy;       // id, search, favorite, usage
-    private String director;     // asc, desc
+    private String direction;     // asc, desc
     private String keyword;
     private MainCategory mainCategory; // VIP_COCK, BASIC_BENEFIT
     private String category;
