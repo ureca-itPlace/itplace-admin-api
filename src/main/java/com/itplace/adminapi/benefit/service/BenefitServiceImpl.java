@@ -9,9 +9,13 @@ import com.itplace.adminapi.benefit.dto.FavoriteRankResponse;
 import com.itplace.adminapi.benefit.dto.PagedResponse;
 import com.itplace.adminapi.benefit.dto.TierBenefitInfo;
 import com.itplace.adminapi.benefit.entity.Benefit;
+import com.itplace.adminapi.benefit.entity.BenefitPolicy;
+import com.itplace.adminapi.benefit.entity.enums.BenefitPolicyCode;
 import com.itplace.adminapi.benefit.entity.enums.MainCategory;
 import com.itplace.adminapi.benefit.exception.BenefitNotFoundException;
+import com.itplace.adminapi.benefit.exception.InvalidBenefitPolicyException;
 import com.itplace.adminapi.benefit.exception.NoBenefitUpdateException;
+import com.itplace.adminapi.benefit.repository.BenefitPolicyRepository;
 import com.itplace.adminapi.benefit.repository.BenefitRepository;
 import com.itplace.adminapi.favorite.repository.FavoriteRepository;
 import com.itplace.adminapi.history.repository.MembershipHistoryRepository;
@@ -36,6 +40,7 @@ public class BenefitServiceImpl implements BenefitService {
     private final BenefitRepository benefitRepository;
     private final LogRepository logRepository;
     private final MembershipHistoryRepository membershipHistoryRepository;
+    private final BenefitPolicyRepository benefitPolicyRepository;
 
     @Override
     public List<FavoriteRankResponse> favoriteRank(int limit) {
@@ -67,7 +72,7 @@ public class BenefitServiceImpl implements BenefitService {
                 .benefitId(benefit.getBenefitId())
                 .benefitName(benefit.getBenefitName())
                 .description(benefit.getDescription())
-                .benefitLimit(benefit.getBenefitLimit().trim())
+                .benefitLimit(benefit.getBenefitPolicy().getName())
                 .manual(benefit.getManual().trim())
                 .url(benefit.getUrl().trim())
                 .partnerName(benefit.getPartner().getPartnerName())
@@ -84,9 +89,13 @@ public class BenefitServiceImpl implements BenefitService {
         boolean updated = false;
 
         if (request.getBenefitLimit() != null) {
-            String trimmed = request.getBenefitLimit().trim();
-            if (!trimmed.equals(benefit.getBenefitLimit())) {
-                benefit.setBenefitLimit(trimmed);
+            BenefitPolicyCode policyCode = mapKoreanNameToCode(request.getBenefitLimit());
+
+            BenefitPolicy newPolicy = benefitPolicyRepository.findByCode(policyCode)
+                    .orElseThrow(() -> new InvalidBenefitPolicyException(BenefitCode.BENEFIT_POLICY_NOT_FOUND));
+
+            if (!newPolicy.equals(benefit.getBenefitPolicy())) {
+                benefit.setBenefitPolicy(newPolicy);
                 updated = true;
             }
         }
@@ -209,5 +218,23 @@ public class BenefitServiceImpl implements BenefitService {
         comparator = comparator.thenComparingLong(Benefit::getBenefitId);
 
         return comparator;
+    }
+
+    private BenefitPolicyCode mapKoreanNameToCode(String name) {
+        // 모든 공백 제거 후 비교 (정규화)
+        String normalized = name.replaceAll("\\s+", ""); // "월 1 회" -> "월1회"
+
+        switch (normalized) {
+            case "월1회":
+                return BenefitPolicyCode.MONTHLY_ONCE;
+            case "일1회":
+                return BenefitPolicyCode.DAILY_ONCE;
+            case "제한없음":
+                return BenefitPolicyCode.UNLIMITED;
+            case "최초1회":
+                return BenefitPolicyCode.ONCE;
+            default:
+                throw new InvalidBenefitPolicyException(BenefitCode.INVALID_BENEFIT_POLICY);
+        }
     }
 }
