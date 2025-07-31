@@ -3,11 +3,7 @@ spring:
     active: local
     group:
       local: local, common, secret
-      blue: blue, common, secret
-      green: green, common, secret
-
-server:
-  env: blue
+      aws: aws, common, secret
 
 ---
 
@@ -18,35 +14,17 @@ spring:
 
 server:
   port: 8080
-  serverAddress: localhost
-
-serverName: local_server
 
 ---
 
 spring:
   config:
+    import: file:/app/application-secret.yml
     activate:
-      on-profile: blue
+      on-profile: aws
 
 server:
   port: 8080
-  serverAddress: 13.125.141.14
-
-serverName: blue_server
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: green
-
-server:
-  port: 8081
-  serverAddress: 13.125.141.14
-
-serverName: green_server
 
 ---
 
@@ -60,6 +38,7 @@ spring:
       ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    database-platform: org.hibernate.dialect.MySQLDialect
 
 springdoc:
   swagger-ui:
@@ -69,3 +48,14 @@ logging:
     org.springframework.web: DEBUG
     org.springframework.web.servlet.DispatcherServlet: DEBUG
     com.fasterxml.jackson.databind: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - "health"
+          - "info"
+  endpoint:
+    health:
+      show-details: "always"

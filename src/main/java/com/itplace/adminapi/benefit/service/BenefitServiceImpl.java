@@ -43,6 +43,7 @@ public class BenefitServiceImpl implements BenefitService {
     private final BenefitPolicyRepository benefitPolicyRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<FavoriteRankResponse> favoriteRank(int limit) {
         return favoriteRepository.findTopFavoriteRank(limit).stream()
                 .map(f -> new FavoriteRankResponse(
@@ -56,6 +57,7 @@ public class BenefitServiceImpl implements BenefitService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BenefitDetailResponse getBenefitDetail(Long benefitId) {
         Benefit benefit = benefitRepository.findBenefitWithPartnerById(benefitId)
                 .orElseThrow(() -> new BenefitNotFoundException(BenefitCode.BENEFIT_NOT_FOUND));
@@ -116,11 +118,13 @@ public class BenefitServiceImpl implements BenefitService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long getBenefitCount() {
         return benefitRepository.count();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PagedResponse<BenefitResponse> getBenefitList(BenefitListRequest request) {
         int page = request.getPage() != null ? request.getPage() : 0;
         int size = request.getSize() != null ? request.getSize() : 8;

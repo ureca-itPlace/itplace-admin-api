@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,7 @@ public class MembershipHistoryServiceImpl implements MembershipHistoryService {
     private final MembershipRepository membershipRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public MembershipHistoryResponse getUserBenefitUsage(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(UserCode.USER_NOT_FOUND));
