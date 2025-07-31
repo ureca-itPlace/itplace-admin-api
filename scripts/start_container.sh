@@ -9,7 +9,7 @@ source "${SCRIPT_DIR}/image.env" # TAG 변수 로드
 
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 AWS_REGION="ap-northeast-2"
-ECR_REPOSITORY="itplace-app"
+ECR_REPOSITORY="itplace-admin"
 ECR_IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${TAG}"
 
 # --- 2. ECR 로그인 및 이미지 Pull ---
@@ -25,7 +25,7 @@ SECRET_FILE_PATH="${BASE_APP_DIR}/application-secret.yml"
 docker rm -f itplace-app 2>/dev/null || true
 
 # 최종 컨테이너 실행 명령어
-docker run -d -p 8080:8080 --name itplace-app \
+docker run -d -p 8080:8080 --name itplace-admin \
   -e "SPRING_PROFILES_ACTIVE=aws" \
   -v "${SECRET_FILE_PATH}:/app/application-secret.yml" \
-  --name itplace-app "${ECR_IMAGE_URI}"
+  --name itplace-admin "${ECR_IMAGE_URI}"
