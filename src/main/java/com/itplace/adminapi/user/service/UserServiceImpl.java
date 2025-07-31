@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,11 +24,13 @@ public class UserServiceImpl implements UserService {
     private final MembershipRepository membershipRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public long totalUsers(){
         return userRepository.count();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PagedResponse<UserResponse> getUserList(UserType userType, Grade grade, Pageable pageable) {
 
         Boolean hasMembershipId = null;
@@ -69,6 +72,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PagedResponse<UserResponse> findbyKeyword(String keyword, Pageable pageable){
         if(keyword == null || keyword.isBlank()) {
             throw new UserKeywordException(UserCode.KEYWORD_REQUIRED);
