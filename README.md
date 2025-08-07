@@ -105,11 +105,10 @@
 
 ## 🖥️ 인프라 구조
 
-![아키텍처 다이어그램](docs/architecture.png)
+<img width="1040" height="732" alt="architecture" src="https://github.com/user-attachments/assets/40f0fbd2-2530-4a83-b07f-42f6c344784b" />
 
-## 🕸️ ERD
-
-![ERD](docs/erd.png)
+## 🕸️ ERD 
+<img width="4033" height="2323" alt="erd" src="https://github.com/user-attachments/assets/76afce5d-2ca5-42cf-bf25-6e794971b391" />
 
 ## 📁 프로젝트 구조
 
