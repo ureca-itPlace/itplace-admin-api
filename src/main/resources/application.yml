@@ -1,18 +1,61 @@
 spring:
-  application:
-    name: itplace-admin-api
+  profiles:
+    active: local
+    group:
+      local: local, common, secret
+      aws: aws, common, secret
 
+---
+
+spring:
   config:
-    import: optional:file:.env[.properties]
+    activate:
+      on-profile: local
 
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${MYSQL_URL}
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
+server:
+  port: 8080
+
+---
+
+spring:
+  config:
+    import: file:/app/application-secret.yml
+    activate:
+      on-profile: aws
+
+server:
+  port: 8080
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: common
 
   jpa:
     hibernate:
       ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+springdoc:
+  swagger-ui:
+    url: /swagger.yml
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
+    com.fasterxml.jackson.databind: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - "health"
+          - "info"
+  endpoint:
+    health:
+      show-details: "always"
